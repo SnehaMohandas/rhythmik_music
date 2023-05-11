@@ -17,17 +17,18 @@ class BaseScreen extends StatelessWidget {
   final List<FavoritesEntity>? favs;
 
   List<SongEntity>? playlistSongs;
-  String? dataIndex;
-  String? favsIndex;
-  String? playlistSongIndex;
-  BaseScreen(
-      {super.key,
-      this.data,
-      this.favs,
-      this.playlistSongs,
-      this.dataIndex,
-      this.favsIndex,
-      this.playlistSongIndex});
+  String? dataTitle;
+  String? favsTitle;
+  String? playlistSongTitle;
+  BaseScreen({
+    super.key,
+    this.data,
+    this.favs,
+    this.playlistSongs,
+    this.dataTitle,
+    this.favsTitle,
+    this.playlistSongTitle,
+  });
   static ValueNotifier<int> selectedIndexNotifier = ValueNotifier(0);
 
   final pages = [
@@ -40,101 +41,132 @@ class BaseScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var con = Get.put(PlayerController());
-    return Container(
-      decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 5, 1, 48),
-                Color.fromARGB(255, 82, 3, 69),
-                Color.fromARGB(255, 5, 1, 48),
-              ],
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              stops: [0.1, 0.5, 0.7])),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        bottomNavigationBar: BottomNavigation(),
-        body: SafeArea(
-            child: Column(children: [
-          Expanded(
-            child: ValueListenableBuilder(
-                valueListenable: selectedIndexNotifier,
-                builder: (BuildContext ctx, int updatedIndex, Widget? _) {
-                  return pages[updatedIndex];
-                }),
-          ),
-          Obx(() => con.miniplayer.value
-              ? FutureBuilder(builder: (context, snapshot) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 192, 106, 135),
-                      borderRadius: BorderRadius.circular(12),
+    var playerController = Get.put(PlayerController());
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 5, 1, 48),
+      bottomNavigationBar: BottomNavigation(),
+      body: SafeArea(
+          child: Column(children: [
+        Expanded(
+          child: ValueListenableBuilder(
+              valueListenable: selectedIndexNotifier,
+              builder: (BuildContext ctx, int updatedIndex, Widget? _) {
+                return pages[updatedIndex];
+              }),
+        ),
+        Obx(() => playerController.miniplayer.value
+            ? FutureBuilder(builder: (context, snapshot) {
+                return Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 5, 1, 48),
+                        Color.fromARGB(255, 5, 1, 48),
+                        Color.fromARGB(255, 71, 4, 71),
+                      ],
                     ),
-                    height: 57,
-                    margin: EdgeInsets.only(
-                      right: 20,
-                      left: 20,
-                    ),
-                    child: ListTile(
-                      leading: Obx(
-                        () => IconButton(
-                          onPressed: () {
-                            if (con.isPlaying.value) {
-                              con.audioPlayer.pause();
-                              con.isPlaying(false);
-                            } else {
-                              con.audioPlayer.play();
-                              con.isPlaying(true);
-                            }
-                          },
-                          icon: con.isPlaying.value
-                              ? Icon(Icons.pause, color: Colors.black)
-                              : Icon(
-                                  Icons.play_arrow_rounded,
-                                  color: Colors.black,
-                                  size: 37,
-                                ),
+                  ),
+                  height: 60,
+                  child: Column(
+                    children: [
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          trackHeight: 2,
+                          activeTrackColor: Colors.white,
+                          thumbShape: const RoundSliderThumbShape(
+                              enabledThumbRadius: 1.0),
+                          overlayShape:
+                              const RoundSliderOverlayShape(overlayRadius: 1),
+                        ),
+                        child: Obx(
+                          () => Slider(
+                            min:
+                                const Duration(seconds: 0).inSeconds.toDouble(),
+                            max: playerController.max.value,
+                            value: playerController.value.value,
+                            onChanged: (newValue) {
+                              playerController.changeDuration(newValue.toInt());
+                              newValue = newValue;
+                            },
+                            thumbColor:
+                                const Color.fromARGB(255, 135, 141, 207),
+                            activeColor:
+                                const Color.fromARGB(255, 135, 141, 207),
+                            inactiveColor:
+                                const Color.fromARGB(255, 146, 139, 139),
+                          ),
                         ),
                       ),
-                      title: Text(
-                        con.isAllsongOpen.value
-                            ? dataIndex.toString()
-                            : con.isFavOpen.value
-                                ? favsIndex.toString()
-                                : playlistSongIndex.toString(),
-                        maxLines: 1,
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            overflow: TextOverflow.ellipsis),
-                      ),
-                      trailing: IconButton(
-                          onPressed: () {
-                            con.miniplayer(false);
-                            con.audioPlayer.pause();
+                      Expanded(
+                        child: ListTile(
+                          leading: Obx(
+                            () => IconButton(
+                              onPressed: () {
+                                if (playerController.isPlaying.value) {
+                                  playerController.audioPlayer.pause();
+                                  playerController.isPlaying(false);
+                                } else {
+                                  playerController.audioPlayer.play();
+                                  playerController.isPlaying(true);
+                                }
+                              },
+                              icon: playerController.isPlaying.value
+                                  ? const Icon(
+                                      Icons.pause,
+                                      color: Color.fromARGB(255, 223, 217, 217),
+                                      size: 35,
+                                    )
+                                  : const Icon(
+                                      Icons.play_arrow_rounded,
+                                      color: Colors.white,
+                                      size: 37,
+                                    ),
+                            ),
+                          ),
+                          title: Text(
+                            playerController.isAllsongOpen.value
+                                ? dataTitle.toString()
+                                : playerController.isFavOpen.value
+                                    ? favsTitle.toString()
+                                    : playerController.isPlaylistOpen.value
+                                        ? playlistSongTitle.toString()
+                                        : dataTitle.toString(),
+                            maxLines: 1,
+                            style: const TextStyle(
+                                color: Color.fromARGB(255, 241, 236, 236),
+                                fontWeight: FontWeight.w400,
+                                fontSize: 15,
+                                overflow: TextOverflow.ellipsis),
+                          ),
+                          trailing: IconButton(
+                              onPressed: () {
+                                playerController.miniplayer(false);
+                                playerController.audioPlayer.pause();
+                              },
+                              icon: const Icon(
+                                Icons.cancel,
+                                color: Color.fromARGB(255, 223, 217, 217),
+                                size: 20,
+                              )),
+                          onTap: () {
+                            Get.to(
+                                () => PlayerScreen(
+                                      data: data == null ? null : data,
+                                      favs: favs == null ? null : favs,
+                                      playlistSongs: playlistSongs == null
+                                          ? null
+                                          : playlistSongs,
+                                    ),
+                                transition: Transition.downToUp);
                           },
-                          icon: Icon(
-                            Icons.cancel,
-                            color: Colors.black,
-                          )),
-                      onTap: () {
-                        Get.to(
-                            () => PlayerScreen(
-                                  data: data == null ? null : data,
-                                  favs: favs == null ? null : favs,
-                                  playlistSongs: playlistSongs == null
-                                      ? null
-                                      : playlistSongs,
-                                ),
-                            transition: Transition.downToUp);
-                      },
-                    ),
-                  );
-                })
-              : Visibility(visible: false, child: Text("")))
-        ])),
-      ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              })
+            : const Visibility(visible: false, child: Text("")))
+      ])),
     );
   }
 
@@ -147,8 +179,8 @@ class BaseScreen extends StatelessWidget {
               color: Colors.transparent,
               buttonBackgroundColor: Colors.pink,
               animationCurve: Curves.easeInOut,
-              animationDuration: Duration(milliseconds: 500),
-              backgroundColor: Color.fromARGB(255, 5, 1, 48),
+              animationDuration: const Duration(milliseconds: 500),
+              backgroundColor: const Color.fromARGB(255, 5, 1, 48),
               index: udatedIndex,
               onTap: (newIndex) {
                 BaseScreen.selectedIndexNotifier.value = newIndex;

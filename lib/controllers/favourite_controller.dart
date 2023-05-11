@@ -13,8 +13,9 @@ class FavouriteController extends GetxController {
       Get.snackbar(
         '',
         '',
-        animationDuration: Duration(seconds: 2),
-        backgroundColor: Color.fromARGB(255, 24, 3, 63),
+        duration: const Duration(seconds: 2),
+        animationDuration: const Duration(seconds: 2),
+        backgroundColor: const Color.fromARGB(255, 24, 3, 63),
         titleText: Text(
           songs[index].title,
           maxLines: 2,
@@ -28,14 +29,14 @@ class FavouriteController extends GetxController {
         ),
       );
       update();
-      print("added");
     } else {
       Get.back();
       Get.snackbar(
         '',
         '',
-        animationDuration: Duration(seconds: 2),
-        backgroundColor: Color.fromARGB(255, 24, 3, 63),
+        duration: const Duration(seconds: 2),
+        animationDuration: const Duration(seconds: 2),
+        backgroundColor: const Color.fromARGB(255, 24, 3, 63),
         titleText: Text(songs[index].title,
             maxLines: 2, style: const TextStyle(color: Colors.white)),
         messageText: const Text(

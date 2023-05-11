@@ -5,7 +5,6 @@ import 'package:on_audio_query/on_audio_query.dart';
 class PlayerController extends GetxController {
   final audioQuery = OnAudioQuery();
   var hasPermission = false.obs;
-  var shouldMiniPlayerBeVisible = false.obs;
 
   final audioPlayer = AudioPlayer();
   var playIndex = 0.obs;
@@ -18,14 +17,12 @@ class PlayerController extends GetxController {
   var favPlayIndex = 0.obs;
   var playlistPlayIndex = 0.obs;
   var miniplayer = false.obs;
-  var isAllsongMiniPlayer = false.obs;
-  var isFavsongMiniPlayer = false.obs;
-
-  var isPlaylistsongMiniPlayer = false.obs;
 
   var isAllsongOpen = false.obs;
   var isFavOpen = false.obs;
   var isPlaylistOpen = false.obs;
+
+  bool changingGridview = true;
 
   @override
   void onInit() {
@@ -46,13 +43,10 @@ class PlayerController extends GetxController {
       audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(uri!)));
       audioPlayer.play();
       isPlaying(true);
-      miniPlayeropn();
 
       updatePosition();
       isAudioCompleted();
-    } catch (e) {
-      print(e.toString());
-    }
+    } catch (e) {}
   }
 
   favSongplay(String path, index) async {
@@ -63,9 +57,7 @@ class PlayerController extends GetxController {
       isPlaying(true);
       updatePosition();
       isAudioCompleted();
-    } catch (e) {
-      print(e.toString());
-    }
+    } catch (e) {}
   }
 
   playlistsongPlay(String path, index) async {
@@ -76,9 +68,7 @@ class PlayerController extends GetxController {
       isPlaying(true);
       updatePosition();
       isAudioCompleted();
-    } catch (e) {
-      print(e.toString());
-    }
+    } catch (e) {}
   }
 
   updatePosition() {
@@ -106,19 +96,15 @@ class PlayerController extends GetxController {
       if (c.processingState == ProcessingState.completed) {
         isPlaying(false);
         audioPlayer.seek(Duration.zero);
-        // audioPlayer.hasNext ? audioPlayer.seekToNext() : audioPlayer.stop();
         isCompleted(true);
         audioPlayer.stop();
       }
     });
   }
 
-  miniPlayeropn() {
-    audioPlayer.playerStateStream.listen((event) {
-      if (event.playing) {
-      } else {
-        shouldMiniPlayerBeVisible(false);
-      }
-    });
+  changeHomeBody() {
+    changingGridview = !changingGridview;
+
+    update();
   }
 }

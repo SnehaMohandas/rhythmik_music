@@ -21,21 +21,14 @@ class PlaylistScreen extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
           gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 5, 1, 48),
-                Color.fromARGB(255, 82, 3, 69),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              stops: [0.6, 0.9])),
+        colors: [
+          Color.fromARGB(255, 5, 1, 48),
+          Color.fromARGB(255, 46, 4, 46),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      )),
       child: Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            title: const Text(
-              "Playlist",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
           floatingActionButton: Container(
             height: 50,
             width: 50,
@@ -44,7 +37,7 @@ class PlaylistScreen extends StatelessWidget {
                 border: Border.all(color: Colors.white, width: 2),
                 color: Colors.transparent),
             child: FloatingActionButton(
-              backgroundColor: Color.fromARGB(255, 9, 1, 32),
+              backgroundColor: const Color.fromARGB(255, 9, 1, 32),
               onPressed: () {
                 showDialog<bool>(
                   context: Get.overlayContext!,
@@ -107,19 +100,61 @@ class PlaylistScreen extends StatelessWidget {
                   },
                 );
               },
-              child: Icon(
+              child: const Icon(
                 Icons.playlist_add,
                 size: 27,
               ),
             ),
           ),
           backgroundColor: Colors.transparent,
-          body: Padding(
-            padding: const EdgeInsets.only(right: 8, left: 8),
-            child: Column(
-              children: [
-                Expanded(
-                  child: GetBuilder<PlaylistController>(builder: (context) {
+          body: SafeArea(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                children: [
+                  Stack(children: [
+                    Container(
+                      height: 230,
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(60),
+                            bottomRight: Radius.circular(60)),
+                        image: DecorationImage(
+                            image:
+                                AssetImage("assets/images/playlist_cover.png"),
+                            fit: BoxFit.cover),
+                      ),
+                    ),
+                    Container(
+                      height: 230,
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(60),
+                              bottomRight: Radius.circular(60)),
+                          gradient: LinearGradient(colors: [
+                            Color.fromARGB(132, 3, 11, 53),
+                            Color.fromARGB(99, 89, 33, 129)
+                          ])),
+                    ),
+                    const Positioned(
+                      left: 30,
+                      bottom: 16,
+                      child: Text(
+                        "Playlists",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 28),
+                      ),
+                    )
+                  ]),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  GetBuilder<PlaylistController>(builder: (context) {
                     return FutureBuilder<List<PlaylistEntity>>(
                         future: OnAudioRoom().queryPlaylists(),
                         builder: (context, snapshot) {
@@ -130,157 +165,184 @@ class PlaylistScreen extends StatelessWidget {
                               ),
                             );
                           } else if (snapshot.data!.isEmpty) {
-                            return const Center(
-                              child: Text(
-                                "No Playlists",
-                                style: TextStyle(color: Colors.white),
-                              ),
+                            return Column(
+                              children: const [
+                                SizedBox(
+                                  height: 150,
+                                ),
+                                Text(
+                                  "No Playlists",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
                             );
                           }
                           List<PlaylistEntity> playlists = snapshot.data!;
 
-                          return ListView.separated(
-                              separatorBuilder: (context, index) {
-                                return const Divider(
-                                  color: Color.fromARGB(255, 144, 158, 202),
-                                );
-                              },
-                              itemCount: playlists.length,
-                              itemBuilder: (context, index) {
-                                return ListTile(
-                                  leading: Container(
-                                    height: 50,
-                                    width: 45,
-                                    decoration: const BoxDecoration(
-                                        image: DecorationImage(
-                                            image: AssetImage(
-                                                "assets/images/playlists.png"),
-                                            fit: BoxFit.fitWidth)),
-                                  ),
-                                  title: Text(
-                                    playlists[index].playlistName,
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  trailing: IconButton(
-                                      onPressed: () {
-                                        showDialog(
-                                            context: Get.overlayContext!,
-                                            builder: (BuildContext context) =>
-                                                CupertinoAlertDialog(
-                                                  title: const Text(
-                                                      "Delete The Playlist"),
-                                                  content: const Text(
-                                                      "Are you sure ?"),
-                                                  actions: <Widget>[
-                                                    CupertinoDialogAction(
-                                                      onPressed: () {
-                                                        playListController
-                                                            .deletePlaylist(
-                                                                playlists[index]
-                                                                    .key);
-                                                        Get.back();
-                                                      },
-                                                      isDefaultAction: true,
-                                                      child: Text(
-                                                        'Yes',
-                                                        style: TextStyle(
-                                                            color: Colors.green
-                                                                .shade600),
-                                                      ),
-                                                    ),
-                                                    CupertinoDialogAction(
-                                                      onPressed: () =>
-                                                          Get.back(),
-                                                      child: Text(
-                                                        "No",
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .red.shade600),
-                                                      ),
-                                                    )
-                                                  ],
-                                                ));
+                          return Padding(
+                            padding: const EdgeInsets.only(left: 13, right: 13),
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: playlists.length,
+                                itemBuilder: (context, index) {
+                                  return Container(
+                                    margin: EdgeInsets.only(bottom: 9),
+                                    color: Colors.black26,
+                                    child: ListTile(
+                                      leading: Container(
+                                        height: 50,
+                                        width: 48,
+                                        decoration: const BoxDecoration(
+                                            color: Colors.transparent,
+                                            image: DecorationImage(
+                                                image: AssetImage(
+                                                    "assets/images/playlist.png"),
+                                                fit: BoxFit.fitHeight)),
+                                      ),
+                                      title: Text(
+                                        playlists[index].playlistName,
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                      ),
+                                      trailing: IconButton(
+                                          onPressed: () {
+                                            showDialog(
+                                                context: Get.overlayContext!,
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        CupertinoAlertDialog(
+                                                          title: const Text(
+                                                              "Delete The Playlist"),
+                                                          content: const Text(
+                                                              "Are you sure ?"),
+                                                          actions: <Widget>[
+                                                            CupertinoDialogAction(
+                                                              onPressed: () {
+                                                                playListController
+                                                                    .deletePlaylist(
+                                                                        playlists[index]
+                                                                            .key);
+                                                                Get.back();
+                                                              },
+                                                              isDefaultAction:
+                                                                  true,
+                                                              child: Text(
+                                                                'Yes',
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .green
+                                                                        .shade600),
+                                                              ),
+                                                            ),
+                                                            CupertinoDialogAction(
+                                                              onPressed: () =>
+                                                                  Get.back(),
+                                                              child: Text(
+                                                                "No",
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .red
+                                                                        .shade600),
+                                                              ),
+                                                            )
+                                                          ],
+                                                        ));
+                                          },
+                                          icon: const Icon(
+                                            Icons.delete,
+                                            color: Color.fromARGB(
+                                                255, 135, 141, 207),
+                                          )),
+                                      onTap: () async {
+                                        if (songs == null) {
+                                          return Get.to(() => PlayListSongs(
+                                                playListName: playlists[index]
+                                                    .playlistName,
+                                                playListKey:
+                                                    playlists[index].key,
+                                              ));
+                                        } else {
+                                          bool isAdded =
+                                              await audioRoom.checkIn(
+                                            RoomType.PLAYLIST,
+                                            songs![songIndex!].id,
+                                            playlistKey: playlists[index].key,
+                                          );
+
+                                          await audioRoom.addTo(
+                                            RoomType.PLAYLIST,
+                                            songs![songIndex!]
+                                                .getMap
+                                                .toSongEntity(),
+                                            playlistKey: playlists[index].key,
+                                            ignoreDuplicate: false,
+                                          );
+
+                                          Get.back();
+                                          if (isAdded == true) {
+                                            Get.snackbar(
+                                              '',
+                                              '',
+                                              duration:
+                                                  const Duration(seconds: 2),
+                                              titleText: Text(
+                                                'Message from ${playlists[index].playlistName}',
+                                                maxLines: 2,
+                                                style: const TextStyle(
+                                                    fontSize: 15,
+                                                    color: Colors.white),
+                                              ),
+                                              messageText: Text(
+                                                'Song Already Added to ${playlists[index].playlistName}',
+                                                maxLines: 2,
+                                                style: const TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                              backgroundColor:
+                                                  const Color.fromARGB(
+                                                      255, 24, 3, 63),
+                                            );
+                                          } else {
+                                            Get.snackbar(
+                                              '',
+                                              '',
+                                              duration:
+                                                  const Duration(seconds: 2),
+                                              titleText: Text(
+                                                'Message from ${playlists[index].playlistName}',
+                                                style: const TextStyle(
+                                                    fontSize: 15,
+                                                    color: Colors.white),
+                                              ),
+                                              messageText: Text(
+                                                '${songs![songIndex!].title}  Song Added to ${playlists[index].playlistName} ',
+                                                maxLines: 2,
+                                                style: const TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                              backgroundColor:
+                                                  const Color.fromARGB(
+                                                      255, 24, 3, 63),
+                                            );
+                                          }
+                                          Get.to(
+                                            () => PlayListSongs(
+                                              playListName:
+                                                  playlists[index].playlistName,
+                                              playListKey: playlists[index].key,
+                                            ),
+                                          );
+                                        }
                                       },
-                                      icon: const Icon(
-                                        Icons.delete,
-                                        color: Colors.pink,
-                                      )),
-                                  onTap: () async {
-                                    if (songs == null) {
-                                      return Get.to(() => PlayListSongs(
-                                            playListName:
-                                                playlists[index].playlistName,
-                                            playListKey: playlists[index].key,
-                                          ));
-                                    } else {
-                                      bool isAdded = await audioRoom.checkIn(
-                                        RoomType.PLAYLIST,
-                                        songs![songIndex!].id,
-                                        playlistKey: playlists[index].key,
-                                      );
-
-                                      await audioRoom.addTo(
-                                        RoomType.PLAYLIST,
-                                        songs![songIndex!]
-                                            .getMap
-                                            .toSongEntity(),
-                                        playlistKey: playlists[index].key,
-                                        ignoreDuplicate: false,
-                                      );
-
-                                      Get.back();
-                                      if (isAdded == true) {
-                                        Get.snackbar(
-                                          '',
-                                          '',
-                                          titleText: Text(
-                                            'Message from ${playlists[index].playlistName}',
-                                            maxLines: 2,
-                                            style: const TextStyle(
-                                                fontSize: 15,
-                                                color: Colors.white),
-                                          ),
-                                          messageText: Text(
-                                            'Song Already Added to ${playlists[index].playlistName}',
-                                            maxLines: 2,
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
-                                          backgroundColor:
-                                              Color.fromARGB(255, 24, 3, 63),
-                                        );
-                                      } else {
-                                        Get.snackbar(
-                                          '',
-                                          '',
-                                          titleText: Text(
-                                            'Message from ${playlists[index].playlistName}',
-                                            style: const TextStyle(
-                                                fontSize: 15,
-                                                color: Colors.black),
-                                          ),
-                                          messageText: Text(
-                                            '${songs![songIndex!].title}  Song Added to ${playlists[index].playlistName} ',
-                                            maxLines: 2,
-                                          ),
-                                          backgroundColor: Colors.white,
-                                        );
-                                      }
-                                      Get.to(
-                                        () => PlayListSongs(
-                                          playListName:
-                                              playlists[index].playlistName,
-                                          playListKey: playlists[index].key,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                );
-                              });
+                                    ),
+                                  );
+                                }),
+                          );
                         });
                   }),
-                ),
-              ],
+                ],
+              ),
             ),
           )),
     );

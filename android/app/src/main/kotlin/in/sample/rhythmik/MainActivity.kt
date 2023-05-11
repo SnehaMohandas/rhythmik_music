@@ -1,4 +1,4 @@
-package com.example.rhythmik_music_player
+package `in`.sample.rhythmik
 
 import io.flutter.embedding.android.FlutterActivity
 
